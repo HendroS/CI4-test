@@ -145,7 +145,7 @@ class Auth extends BaseController
 
         if ($user) {
             // email exist
-            if ($user['active']) {
+            if ($user['is_active']) {
                 //account active
                 if (password_verify($password, $user['password'])) {
                     $data = [
@@ -211,6 +211,71 @@ class Auth extends BaseController
         } else {
             $data = $email->printDebugger();
             print_r($data);
+        }
+    }
+
+    public function verify()
+    {
+        $email = $this->request->getVar('email');
+        $token = $this->request->getVar('token');
+
+        $user = $this->user_token->where('email', $email)->first();
+
+        if ($user) {
+            //email found
+            // $user_token = $db->table('user_token')
+            // ->where('token', $token)->get()->getRowArray();
+            $user_token = $this->user_token
+                ->where('token', $token)->first();
+            if ($user_token) {
+                //valid token
+                if (time() - $user_token['date_created'] < (60 * 60 * 24)) {
+                    // less than 24 hour
+
+                    $this->user->where('email', $email)->update(['is_active' => true]);
+                    $this->user_token->where('email', $email)->delete();
+
+                    $this->session->setFlashdata(
+                        'message',
+                        "<div class='alert alert-success' role='alert'>
+                        $email has been activated. Please login!
+                        </div>"
+                    );
+                    return redirect()->to(base_url('/auth'));
+                } else {
+                    //more than 24 
+
+                    //delete token and account
+                    $this->user->where('email', $email)->delete();
+                    $this->user_token->where('email', $email)->delete();
+
+                    session()->setFlashdata(
+                        'message',
+                        "<div class='alert alert-danger' role='alert'>
+                        Your activation failed. Expired token!
+                        </div>"
+                    );
+                    return redirect()->to(base_url('/auth'));
+                }
+            } else {
+                //invalid token
+                session()->setFlashdata(
+                    'message',
+                    "<div class='alert alert-danger' role='alert'>
+                        Your activation failed. Invalid token!
+                        </div>"
+                );
+                return redirect()->to(base_url('/auth'));
+            }
+        } else {
+            // email not found on token table
+            $this->session->setFlashdata(
+                'message',
+                "<div class='alert alert-danger' role='alert'>
+                Your activation failed. Wrong email!
+                </div>"
+            );
+            return redirect()->to(base_url('/auth'));
         }
     }
 }
