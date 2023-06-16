@@ -235,7 +235,7 @@ class Auth extends BaseController
                     $this->user->where('email', $email)->update(['is_active' => true]);
                     $this->user_token->where('email', $email)->delete();
 
-                    $this->session->setFlashdata(
+                    session()->setFlashdata(
                         'message',
                         "<div class='alert alert-success' role='alert'>
                         $email has been activated. Please login!
@@ -269,7 +269,7 @@ class Auth extends BaseController
             }
         } else {
             // email not found on token table
-            $this->session->setFlashdata(
+            session()->setFlashdata(
                 'message',
                 "<div class='alert alert-danger' role='alert'>
                 Your activation failed. Wrong email!
