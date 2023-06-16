@@ -9,16 +9,43 @@ class Auth extends BaseController
     protected $user;
     protected $user_token;
 
+
     public function __construct()
     {
         helper('form');
+
         $this->user = model('App\Models\User');
         $this->user_token = model('App\Models\UserToken');
     }
     public function index()
     {
         $data['title'] = 'LOGIN';
-        return view('auth/login', $data);
+
+        if (!$this->request->is('post')) {
+            $data['title'] = 'User Login';
+            return view('auth/login', $data);
+        }
+
+        $rules = [
+            'email' => [
+                'label' => 'Email',
+                'rules' => 'required|trim|valid_email',
+                'errors' => [
+                    'valid_email' => 'Email is not valid'
+                ]
+            ],
+            'password' => [
+                'label'  => 'Password',
+                'rules'  => 'required|trim|min_length[6]|',
+                'errors' => []
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->to(base_url('auth'))->withInput();
+        } else {
+            return $this->_login();
+        }
     }
     public function register()
     {
@@ -106,5 +133,57 @@ class Auth extends BaseController
         $data['title'] = 'FORGOT PASSWORD';
 
         return view('auth/forgot_password', $data);
+    }
+
+
+    private function _login()
+    {
+        $email = $this->request->getVar('email');
+        $password = $this->request->getVar('password');
+
+        $user = $this->user->where('email', $email)->first();
+
+        if ($user) {
+            // email exist
+            if ($user['active']) {
+                //account active
+                if (password_verify($password, $user['password'])) {
+                    $data = [
+                        'email' => $user['email'],
+                        'role_id' => $user['role_id']
+                    ];
+                    session()->set($data);
+                    //go to user page
+                    return redirect()->to(base_url('user'));
+                } else {
+                    //wrong password
+                    session()->setFlashdata(
+                        'message',
+                        "<div class='alert alert-danger' role='alert'>
+                        Wrong password!
+                        </div>"
+                    );
+                    return redirect()->to(base_url('auth'))->withInput();
+                }
+            } else {
+                //not activated
+                session()->setFlashdata(
+                    'message',
+                    "<div class='alert alert-danger' role='alert'>
+                This email has not been activated!
+                </div>"
+                );
+                return redirect()->to(base_url('auth'))->withInput();
+            }
+        } else {
+            //email no exist
+            session()->setFlashdata(
+                'message',
+                "<div class='alert alert-danger' role='alert'>
+                This email is not registered!
+                </div>"
+            );
+            return redirect()->to(base_url('auth'))->withInput();
+        }
     }
 }
