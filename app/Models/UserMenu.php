@@ -56,4 +56,11 @@ class UserMenu extends Model
                         ORDER BY `user_sub_menu`.`menu_id` ASC";
         return $this->db->query($querySubMenu)->getResultArray();
     }
+    public function getAllSubMenu()
+    {
+        $query = "SELECT `user_sub_menu`.* ,`user_menu`.`menu`
+                FROM `user_sub_menu` JOIN `user_menu`
+                ON `user_sub_menu`.`menu_id`=`user_menu`.`id` ";
+        return $this->db->query($query)->getResultArray();
+    }
 }
