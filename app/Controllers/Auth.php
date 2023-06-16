@@ -111,7 +111,7 @@ class Auth extends BaseController
             $this->user_token->insert($user_token);
 
             //send mail activation token
-            //......
+            $this->_sendEmail($token, 'verify');
 
             session()->setFlashdata(
                 'message',
@@ -184,6 +184,33 @@ class Auth extends BaseController
                 </div>"
             );
             return redirect()->to(base_url('auth'))->withInput();
+        }
+    }
+
+    private function _sendEmail(String $token, String $type)
+    {
+        $email = \Config\Services::email();
+        $to = $this->request->getVar('email');
+
+        //message email link to verify 
+        if ($type == "verify") {
+            $subject = 'Account Verification';
+            $message = 'Click this link to verify your account : <a href="' .
+                base_url('auth/verify?email=') .
+                $to . '&token=' . urlencode($token) . '">Activate</a>';
+        }
+
+        $email->setFrom('indradeveloptest@gmail.com', 'Admin App test');
+
+        $email->setSubject($subject);
+        $email->setTo($to);
+        $email->setMessage($message);
+        $res = $email->send();
+        if ($res) {
+            //....
+        } else {
+            $data = $email->printDebugger();
+            print_r($data);
         }
     }
 }
