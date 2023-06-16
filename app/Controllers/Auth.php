@@ -377,9 +377,9 @@ class Auth extends BaseController
 
     public function changePassword()
     {
-        // if (!session()->has('reset_email')) {
-        //     return redirect()->to(base_url('auth'));
-        // }
+        if (!session()->has('reset_email')) {
+            return redirect()->to(base_url('auth'));
+        }
 
         $data['title'] = 'Change Password';
         if (!$this->request->is('post')) {
@@ -422,5 +422,18 @@ class Auth extends BaseController
             );
             return redirect()->to(base_url('auth'));
         }
+    }
+
+    function logout()
+    {
+        session()->remove('email');
+        session()->remove('role_id');
+        session()->setFlashdata(
+            'message',
+            "<div class='alert alert-success' role='alert'>
+                You have been log out.
+                </div>"
+        );
+        return redirect()->to(base_url('auth'));
     }
 }
