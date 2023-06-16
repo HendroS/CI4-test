@@ -28,22 +28,22 @@ class Email extends BaseConfig
     /**
      * SMTP Server Address
      */
-    public string $SMTPHost = $_ENV('SMTPHOST');
+    public string $SMTPHost = '';
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = $_ENV('SMTPUSER');
+    public string $SMTPUser = getenv('usermail');
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = $_ENV('SMTPPASS');
+    public string $SMTPPass = getenv('passmail');
 
     /**
      * SMTP Port
      */
-    public int $SMTPPort = $_ENV('SMTPPORT');
+    public int $SMTPPort = getenv('port');
 
     /**
      * SMTP Timeout (in seconds)

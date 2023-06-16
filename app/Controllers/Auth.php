@@ -131,8 +131,60 @@ class Auth extends BaseController
     public function forgotPassword()
     {
         $data['title'] = 'FORGOT PASSWORD';
+        if (!$this->request->is('post')) {
 
-        return view('auth/forgot_password', $data);
+            return view('auth/forgot_password', $data);
+        }
+
+        $rules = [
+            'email' => [
+                'label' => 'Email',
+                'rules' => 'required|trim|valid_email',
+                'errors' => [
+                    'valid_email' => 'Email is not valid'
+                ]
+            ],
+        ];
+        if (!$this->validate($rules)) {
+            return view('auth/forgot_password', $data);
+        } else {
+
+            $email = $this->request->getVar('email');
+            $user = $this->user->where(['email' => $email, 'is_active' => true])->first();
+
+            if ($user) {
+                //user active
+
+                //create token email and save to db
+                $token = base64_encode(random_bytes(32));
+                $user_token = [
+                    'email' => $email,
+                    'token' => $token,
+                    'date_created' => time(),
+                ];
+                $this->user_token->insert($user_token);
+
+                //send token resset
+                $this->_sendEmail($token, 'reset');
+
+                session()->setFlashdata(
+                    'message',
+                    "<div class='alert alert-success' role='alert'>
+                Password reset link has been sent to $email! Please check the email.
+                </div>"
+                );
+                return redirect()->to(base_url('auth/forgotpassword'));
+            } else {
+                //user not found or not active
+                session()->setFlashdata(
+                    'message',
+                    "<div class='alert alert-danger' role='alert'>
+                $email is not registered or activated!
+                </div>"
+                );
+                return redirect()->to(base_url('auth/forgotpassword'));
+            }
+        }
     }
 
 
@@ -192,12 +244,18 @@ class Auth extends BaseController
         $email = \Config\Services::email();
         $to = $this->request->getVar('email');
 
-        //message email link to verify 
         if ($type == "verify") {
+            //message email link to verify 
             $subject = 'Account Verification';
             $message = 'Click this link to verify your account : <a href="' .
                 base_url('auth/verify?email=') .
                 $to . '&token=' . urlencode($token) . '">Activate</a>';
+        } else if ($type == "reset") {
+            //message email link to reset 
+            $subject = 'Password Reset';
+            $message = 'Click this link to reset your password : <a href="' .
+                base_url('auth/resetpassword?email=') .
+                $to . '&token=' . urlencode($token) . '">Reset Password</a>';
         }
 
         $email->setFrom('indradeveloptest@gmail.com', 'Admin App test');
@@ -277,5 +335,9 @@ class Auth extends BaseController
             );
             return redirect()->to(base_url('/auth'));
         }
+    }
+
+    public function resetpassword()
+    {
     }
 }
