@@ -21,15 +21,13 @@
                                 </div>
                                 <form class="user" method="post" action="<?= base_url('auth'); ?>">
                                     <div class="form-group">
-                                        <input type="email" name="email" class="form-control form-control-user"
-                                            id="email" placeholder="Enter Email Address...">
+                                        <input value="<?= old('email'); ?>" type="email" name="email" class="form-control form-control-user" id="email" placeholder="Enter Email Address...">
                                         <small class="text-danger pl-3">
                                             <?= validation_show_error('email') ?>
                                         </small>
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" name="password" class="form-control form-control-user"
-                                            id="password" placeholder="Enter Password...">
+                                        <input type="password" name="password" class="form-control form-control-user" id="password" placeholder="Enter Password...">
                                         <small class="text-danger pl-3">
                                             <?= validation_show_error('password') ?>
                                         </small>
