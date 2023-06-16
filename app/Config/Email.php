@@ -28,22 +28,22 @@ class Email extends BaseConfig
     /**
      * SMTP Server Address
      */
-    public string $SMTPHost = '';
+    public string $SMTPHost = "smtp.gmail.com";
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = getenv('usermail');
+    public string $SMTPUser = "indradeveloptest@gmail.com";
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = getenv('passmail');
+    public string $SMTPPass = "cowztxtqfhmeqxsf";
 
     /**
      * SMTP Port
      */
-    public int $SMTPPort = getenv('port');
+    public int $SMTPPort = 465;
 
     /**
      * SMTP Timeout (in seconds)

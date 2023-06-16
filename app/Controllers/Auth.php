@@ -287,17 +287,19 @@ class Auth extends BaseController
         $user = $this->user_token->where('email', $email)->first();
 
         if ($user) {
+
             //email found
             // $user_token = $db->table('user_token')
             // ->where('token', $token)->get()->getRowArray();
             $user_token = $this->user_token
                 ->where('token', $token)->first();
             if ($user_token) {
+
                 //valid token
                 if (time() - $user_token['date_created'] < (60 * 60 * 24)) {
                     // less than 24 hour
 
-                    $this->user->where('email', $email)->update(['is_active' => true]);
+                    $this->user->set('is_active', true)->where('email', $email)->update();
                     $this->user_token->where('email', $email)->delete();
 
                     session()->setFlashdata(
