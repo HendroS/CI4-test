@@ -55,25 +55,34 @@
             <h1 class="h3 mb-4 text-gray-800"><?= $title; ?></h1>
 
             <div class="row">
-                <div class="col-lg" style="max-width: 540px;">
+                <div class="col-lg-6">
                     <?= session()->getFlashdata('message'); ?>
-                </div>
-            </div>
-
-            <!-- profile card -->
-            <div class="card mb-3" style="max-width: 540px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="<?= base_url('assets/img/profile/') . $user['image'] ?>" class="img-fluid rounded-start" alt="image user">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= $user['name']; ?></h5>
-                            <p class="card-text"><?= $user['email']; ?></p>
-                            <p class="card-text"><small class="text-muted">Member since
-                                    <?= date('l, d F Y', $user['date_created']); ?></small></p>
+                    <form action="<?= base_url('user/changepassword'); ?>" method="post">
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" class="form-control" name="current_password" id="current_password" placeholder="Current password">
+                            <small class="text-danger pl-3">
+                                <?= validation_show_error('current_password') ?>
+                            </small>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" class="form-control" name="new_password" id="new_password" placeholder="New password">
+                            <small class="text-danger pl-3">
+                                <?= validation_show_error('new_password') ?>
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm new password">
+                            <small class="text-danger pl-3">
+                                <?= validation_show_error('confirm_password') ?>
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
