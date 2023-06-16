@@ -8,7 +8,8 @@
 }
 
 .bg-register-image {
-  background: url($register-image);
+  // background: url($register-image);
+  background: url('https://source.unsplash.com/random/600x800?login');
   background-position: center;
   background-size: cover;
 }

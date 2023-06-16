@@ -42,7 +42,7 @@
                                         id="conf_password" placeholder="Repeat Password">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-user">
+                            <button type="submit" class="btn btn-primary btn-user btn-block">
                                 Register Account
                             </button>
 
