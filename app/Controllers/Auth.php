@@ -19,7 +19,11 @@ class Auth extends BaseController
     }
     public function index()
     {
+        if (session('email')) {
+            return redirect()->to(base_url('user'));
+        }
         $data['title'] = 'LOGIN';
+
 
         if (!$this->request->is('post')) {
             $data['title'] = 'User Login';
@@ -49,6 +53,9 @@ class Auth extends BaseController
     }
     public function register()
     {
+        if (session('email')) {
+            return redirect()->to(base_url('user'));
+        }
         helper('form');
         $data['title'] = 'User Registration';
 
@@ -422,6 +429,12 @@ class Auth extends BaseController
             );
             return redirect()->to(base_url('auth'));
         }
+    }
+
+    function blocked()
+    {
+        $data['title'] = 'Access Blocked';
+        return view('auth/blocked', $data);
     }
 
     function logout()
