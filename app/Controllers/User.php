@@ -6,7 +6,6 @@ use App\Controllers\BaseController;
 
 class User extends BaseController
 {
-
     protected $user;
     protected $user_menu;
     protected $user_access_menu;
