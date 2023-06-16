@@ -339,5 +339,88 @@ class Auth extends BaseController
 
     public function resetpassword()
     {
+        $email = $this->request->getVar('email');
+        $token = $this->request->getVar('token');
+
+        $user = $this->user->where('email', $email)->first();
+
+        if ($user) {
+            //email in db
+            $user_token = $this->user_token->where('token', $token)->first();
+            if ($user_token) {
+                //token valid
+
+                //session to prevent back after reset
+                session()->set('reset_email', $email);
+                return $this->changePassword();
+            } else {
+                //invalid token
+                session()->setFlashdata(
+                    'message',
+                    "<div class='alert alert-danger' role='alert'>
+                        Reset password failed. Token invalid!
+                        </div>"
+                );
+                return redirect()->to(base_url('auth'));
+            }
+        } else {
+            //no email in db
+            session()->setFlashdata(
+                'message',
+                "<div class='alert alert-danger' role='alert'>
+                        Reset password failed. Wrong email!
+                        </div>"
+            );
+            return redirect()->to(base_url('auth'));
+        }
+    }
+
+    public function changePassword()
+    {
+        // if (!session()->has('reset_email')) {
+        //     return redirect()->to(base_url('auth'));
+        // }
+
+        $data['title'] = 'Change Password';
+        if (!$this->request->is('post')) {
+            return view('auth/change_password', $data);
+        }
+        $rules = [
+            'password' => [
+                'label' => 'Password',
+                'rules' => 'required|trim|min_length[6]|matches[confirm_password]',
+                'errors' => [
+                    'matches' => 'password not match'
+                ]
+            ],
+            'confirm_password' => [
+                'label' => 'Confirmation Password',
+                'rules' => 'required|trim|min_length[6]|matches[password]',
+                'errors' => [
+                    'matches' => 'password not match'
+                ],
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            return view('auth/change_password', $data);
+        } else {
+            $hash_password = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+            $email = session()->get('reset_email');
+
+            //update password
+            $this->user->set('password', $hash_password)->where('email', $email)->update();
+            $this->user_token->where('email', $email)->delete();
+
+            //remove session to prevent back to this url
+            session()->remove('reset_email');
+            session()->setFlashdata(
+                'message',
+                "<div class='alert alert-success' role='alert'>
+                        Reset password success. Please login!
+                        </div>"
+            );
+            return redirect()->to(base_url('auth'));
+        }
     }
 }
